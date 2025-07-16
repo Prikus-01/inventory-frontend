@@ -1,13 +1,12 @@
-import { useState } from 'react'
+import { Outlet } from "react-router"
+import Header from "./Components/header.jsx"
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-      <p className="text-3xl font-bold underline">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Header />
+      <Outlet />
     </>
   )
 }
