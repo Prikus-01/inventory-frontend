@@ -7,6 +7,7 @@ const products = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
 
     useEffect(()=>{
         async function run() {
@@ -22,8 +23,25 @@ const products = () => {
 
     const addHandler = async () => {
     try {
-      await axios.post('http://192.168.251.175:6213/api/v1/products/', formData);
+      const { product_name, packing, units_in_case } = formData;
+      let newErrors = {};
+
+      if (!product_name) newErrors.product_name = "Product name is required.";
+      else if (product_name.length > 30) newErrors.product_name = "Max 30 characters allowed.";
+
+      if (!packing) newErrors.packing = "Packing is required.";
+
+      if (!units_in_case) newErrors.units_in_case = "Units in case is required.";
+      else if (!/^\d+$/.test(units_in_case)) newErrors.units_in_case = "Must be a valid integer.";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      setErrors({});
       closeModal();
+      await axios.post('http://192.168.251.175:6213/api/v1/products/', formData);
       const { data } = await axios.get('http://192.168.251.175:6213/api/v1/products/');
       setProducts(data.data);
     } catch (error) {
@@ -33,8 +51,29 @@ const products = () => {
 
   const editHandler = async () => {
     try {
-      await axios.patch(`http://192.168.251.175:6213/api/v1/products/${formData.product_id}`,formData)
+      const { product_id, product_name, packing, units_in_case } = formData;
+      let newErrors = {};
+      if (!product_id){
+        alert("Product id is missing.");
+        return;
+      }
+
+      if (!product_name) newErrors.product_name = "Product name is required.";
+      else if (product_name.length > 30) newErrors.product_name = "Max 30 characters allowed.";
+
+      if (!packing) newErrors.packing = "Packing is required.";
+
+      if (!units_in_case) newErrors.units_in_case = "Units in case is required.";
+      else if (!/^\d+$/.test(units_in_case)) newErrors.units_in_case = "Must be a valid integer.";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      setErrors({});
       closeModal();
+      await axios.patch(`http://192.168.251.175:6213/api/v1/products/${formData.product_id}`,formData)
       const { data } = await axios.get('http://192.168.251.175:6213/api/v1/products');
       setProducts(data.data);
     } catch (error) {
@@ -169,6 +208,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.product_name && <p className="text-red-500 text-xs mt-1">{errors.product_name}</p>}
                   <label htmlFor="packing" className="block text-sm font-medium text-gray-700 mb-2">
                     Packing
                   </label>
@@ -181,6 +221,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.packing && <p className="text-red-500 text-xs mt-1">{errors.packing}</p>}
                   <label htmlFor="units_in_case" className="block text-sm font-medium text-gray-700 mb-2">
                     Units in case
                   </label>
@@ -193,6 +234,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.units_in_case && <p className="text-red-500 text-xs mt-1">{errors.units_in_case}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button
@@ -246,6 +288,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.product_name && <p className="text-red-500 text-xs mt-1">{errors.product_name}</p>}
                   <label htmlFor="packing" className="block text-sm font-medium text-gray-700 mb-2">
                     packing
                   </label>
@@ -258,6 +301,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.packing && <p className="text-red-500 text-xs mt-1">{errors.packing}</p>}
                   <label htmlFor="units_in_case" className="block text-sm font-medium text-gray-700 mb-2">
                     Units in case
                   </label>
@@ -270,6 +314,7 @@ const products = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.units_in_case && <p className="text-red-500 text-xs mt-1">{errors.units_in_case}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button

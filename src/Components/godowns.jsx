@@ -7,6 +7,7 @@ const godowns = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
 
   useEffect(()=>{
       async function run() {
@@ -22,8 +23,20 @@ const godowns = () => {
 
   const addHandler = async () => {
     try {
-      await axios.post('http://192.168.251.175:6213/api/v1/godowns', formData);
+      const { godown_name } = formData;
+      let newErrors = {};
+
+      if(!godown_name) newErrors.godown_name = "Godown name is required."
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      setErrors({});
+
       closeModal();
+      await axios.post('http://192.168.251.175:6213/api/v1/godowns', formData);
       const { data } = await axios.get('http://192.168.251.175:6213/api/v1/godowns');
       setGodown(data.data);
     } catch (error) {
@@ -33,8 +46,19 @@ const godowns = () => {
 
   const editHandler = async () => {
     try {
-      await axios.patch(`http://192.168.251.175:6213/api/v1/godowns/${formData.godown_id}`,formData)
+      const { godown_name } = formData;
+      let newErrors = {};
+
+      if(!godown_name) newErrors.godown_name = "Godown name is required."
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      setErrors({});
       closeModal();
+      await axios.patch(`http://192.168.251.175:6213/api/v1/godowns/${formData.godown_id}`,formData)
       const { data } = await axios.get('http://192.168.251.175:6213/api/v1/godowns');
       setGodown(data.data);
     } catch (error) {
@@ -155,6 +179,7 @@ const godowns = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.godown_name && <p className="text-red-500 text-xs mt-1">{errors.godown_name}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button
@@ -208,6 +233,7 @@ const godowns = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.godown_name && <p className="text-red-500 text-xs mt-1">{errors.godown_name}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button

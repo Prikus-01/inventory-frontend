@@ -8,6 +8,7 @@ const transaction = () => {
     const [formData, setFormData] = useState({});
     const [products, setProducts] = useState([]);
     const [godowns, setGodowns] = useState([]);
+    const [errors, setErrors] = useState({});
 
     useEffect(()=>{
         async function run() {
@@ -32,6 +33,29 @@ const transaction = () => {
 
     const addHandler = async () => {
       try {
+        const { transaction_type, product_id, godown_id, quantity, reference_number } = formData;
+        let newErrors = {};
+
+        if (!transaction_type) newErrors.transaction_type = "transaction_type is required.";
+
+        if (!product_id) newErrors.product_id = "Product is required.";
+
+        if (!godown_id) newErrors.godown_id = "gogown is required.";
+
+        if (!quantity) newErrors.quantity = "quantity is required.";
+        else if(!/^\d+$/.test(quantity)) newErrors.quantity = "Must be a valid integer.";
+
+        if (!reference_number) newErrors.reference_number = "reference_number is required.";
+        else if(!/^\d+$/.test(reference_number)) newErrors.reference_number = "Must be a valid integer.";
+
+
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+
+        setErrors({});
+
         closeModal();
         await axios.post(`http://192.168.251.175:6213/api/v1/transactions`,formData);
         const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
@@ -179,6 +203,7 @@ const transaction = () => {
                     <option value="inward">inward</option>
                     <option value="outward">outward</option>
                   </select>
+                  {errors.transaction_type && <p className="text-red-500 text-xs mt-1">{errors.transaction_type}</p>}
                   <label htmlFor="product" className="block text-sm font-medium text-gray-700 mb-2">Choose a product : </label>
                   <select onChange={handleInputChange} name="product_id" id="product" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">SELECT</option>
@@ -186,6 +211,7 @@ const transaction = () => {
                       <option key={product.product_id} value={product.product_id}>{product.product_name},{product.packing}</option>
                     ))}
                   </select>
+                  {errors.product_id && <p className="text-red-500 text-xs mt-1">{errors.product_id}</p>}
                   <label htmlFor="godown" className="block text-sm font-medium text-gray-700 mb-2">Choose a godown : </label>
                   <select onChange={handleInputChange} name="godown_id" id="godown" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">SELECT</option>
@@ -193,6 +219,7 @@ const transaction = () => {
                       <option key={godown.godown_id} value={godown.godown_id}>{godown.godown_name}</option>
                     ))}
                   </select>
+                  {errors.godown_id && <p className="text-red-500 text-xs mt-1">{errors.godown_id}</p>}
                   <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
                     Quantity
                   </label>
@@ -204,6 +231,7 @@ const transaction = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
                   <label htmlFor="reference_number" className="block text-sm font-medium text-gray-700 mb-2">
                     Reference number
                   </label>
@@ -215,6 +243,7 @@ const transaction = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
+                  {errors.reference_number && <p className="text-red-500 text-xs mt-1">{errors.reference_number}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button

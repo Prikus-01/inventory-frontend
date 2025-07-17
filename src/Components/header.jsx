@@ -50,6 +50,9 @@ export default function Example() {
           </button>
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+          <a href="/" className="text-md font-semibold text-pray-900">
+            Inventory
+          </a>
           <a href="transactions" className="text-md font-semibold text-pray-900">
             Transactions
           </a>
