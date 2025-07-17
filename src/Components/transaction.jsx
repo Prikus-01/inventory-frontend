@@ -4,6 +4,10 @@ import axios from 'axios';
 
 const transaction = () => {
     const [transactions, setTransactions] = useState([]);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [formData, setFormData] = useState({});
+    const [products, setProducts] = useState([]);
+    const [godowns, setGodowns] = useState([]);
 
     useEffect(()=>{
         async function run() {
@@ -17,6 +21,47 @@ const transaction = () => {
         run();
     },[])
 
+    const addButton = async ()=>{
+      const products =  await axios.get('http://192.168.251.175:6213/api/v1/products');
+      setProducts(products.data.data);
+      const data =  await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+      setGodowns(data.data.data);
+      setShowAddModal(true);
+      setFormData({ transaction_type : '', product_id: '', godown_id: '', quantity: '', reference_number: '' })
+    }
+
+    const addHandler = async () => {
+      try {
+        closeModal();
+        await axios.post(`http://192.168.251.175:6213/api/v1/transactions`,formData);
+        const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
+        setTransactions(data.data);
+      } catch (error) {
+        console.error("Failed to add product", error);
+      }
+    }
+
+    const deleteHandler = async (user) => {
+      try {
+        await axios.delete(`http://192.168.251.175:6213/api/v1/transactions/${user.transactions_id}`);
+        const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
+        setTransactions(data.data);
+      } catch (error) {
+        console.error("Failed to delete product", error);
+      }
+    }
+
+    const closeModal = () => {
+    setShowAddModal(false);
+    setFormData({});
+  }
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  }
+
   return (
     <div className="bg-white">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -27,7 +72,9 @@ const transaction = () => {
               list of all the Transactions and details.
             </p>
           </div>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+          <button
+          onClick={addButton}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
             Add Transactions
           </button>
         </div>
@@ -94,7 +141,11 @@ const transaction = () => {
                   <div className="text-sm font-medium text-gray-900">{user.reference_number}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                  <button className="text-red-600 hover:text-indigo-900 transition-colors">
+                  <button 
+                  onClick={() => {
+                    deleteHandler(user);
+                  }}
+                  className="text-red-600 hover:text-indigo-900 transition-colors">
                     Delete
                   </button>
                 </td>
@@ -103,6 +154,89 @@ const transaction = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Add New Transaction</h3>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div>
+                <div className="mb-4">
+                  <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">Choose in/out : </label>
+                  <select onChange={handleInputChange} name="transaction_type" id="type" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">SELECT</option>
+                    <option value="inward">inward</option>
+                    <option value="outward">outward</option>
+                  </select>
+                  <label htmlFor="product" className="block text-sm font-medium text-gray-700 mb-2">Choose a product : </label>
+                  <select onChange={handleInputChange} name="product_id" id="product" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">SELECT</option>
+                    {products.map((product)=>(
+                      <option key={product.product_id} value={product.product_id}>{product.product_name},{product.packing}</option>
+                    ))}
+                  </select>
+                  <label htmlFor="godown" className="block text-sm font-medium text-gray-700 mb-2">Choose a godown : </label>
+                  <select onChange={handleInputChange} name="godown_id" id="godown" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">SELECT</option>
+                    {godowns.map((godown)=>(
+                      <option key={godown.godown_id} value={godown.godown_id}>{godown.godown_name}</option>
+                    ))}
+                  </select>
+                  <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantity
+                  </label>
+                  <input
+                    type="text"
+                    id="quantity"
+                    name="quantity"
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                  <label htmlFor="reference_number" className="block text-sm font-medium text-gray-700 mb-2">
+                    Reference number
+                  </label>
+                  <input
+                    type="text"
+                    id="reference_number"
+                    name="reference_number"
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    onClick={addHandler}
+                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    Add Product
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
