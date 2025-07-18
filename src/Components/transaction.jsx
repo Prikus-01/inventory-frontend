@@ -5,6 +5,7 @@ import axios from 'axios';
 const transaction = () => {
     const [transactions, setTransactions] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showStockModal, setShowStockModal] = useState(false);
     const [formData, setFormData] = useState({});
     const [products, setProducts] = useState([]);
     const [godowns, setGodowns] = useState([]);
@@ -56,8 +57,12 @@ const transaction = () => {
 
         setErrors({});
 
+        const response = await axios.post(`http://192.168.251.175:6213/api/v1/transactions`,formData);
+        if(response.status === 204) {
+          setShowStockModal(true);
+          return;
+        }
         closeModal();
-        await axios.post(`http://192.168.251.175:6213/api/v1/transactions`,formData);
         const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
         setTransactions(data.data);
       } catch (error) {
@@ -244,6 +249,7 @@ const transaction = () => {
                     required
                   />
                   {errors.reference_number && <p className="text-red-500 text-xs mt-1">{errors.reference_number}</p>}
+                  {errors.not_in_stock && <p className="text-red-500 text-xs mt-1">{errors.not_in_stock}</p>}
                 </div>
                 <div className="flex justify-end space-x-3">
                   <button
@@ -261,6 +267,24 @@ const transaction = () => {
                     Add Product
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStockModal && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Material not in Stock.</h3>
+                <button
+                  onClick={()=>{setShowStockModal(false)}}
+                  className="text-gray-400 hover:text-black"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
