@@ -8,7 +8,7 @@ const home = () => {
     useEffect(()=>{
         async function run() {
             try {
-                const {data} =  await axios.get('http://192.168.251.175:6213/api/v1/displayinventorys');
+                const {data} =  await axios.get('https://inv-man.onrender.com/api/v1/displayinventorys');
                 // console.log(data.data);
                 setInventory(data.data);
             } catch (error) {

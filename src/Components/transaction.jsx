@@ -14,7 +14,7 @@ const transaction = () => {
     useEffect(()=>{
         async function run() {
             try {
-                const {data} =  await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
+                const {data} =  await axios.get('https://inv-man.onrender.com/api/v1/transactions/display');
                 setTransactions(data.data);
             } catch (error) {
                 console.log(error);
@@ -24,9 +24,9 @@ const transaction = () => {
     },[])
 
     const addButton = async ()=>{
-      const products =  await axios.get('http://192.168.251.175:6213/api/v1/products');
+      const products =  await axios.get('https://inv-man.onrender.com/api/v1/products');
       setProducts(products.data.data);
-      const data =  await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+      const data =  await axios.get('https://inv-man.onrender.com/api/v1/godowns');
       setGodowns(data.data.data);
       setShowAddModal(true);
       setFormData({ transaction_type : '', product_id: '', godown_id: '', quantity: '', reference_number: '' })
@@ -57,13 +57,13 @@ const transaction = () => {
 
         setErrors({});
 
-        const response = await axios.post(`http://192.168.251.175:6213/api/v1/transactions`,formData);
+        const response = await axios.post(`https://inv-man.onrender.com/api/v1/transactions`,formData);
         if(response.status === 204) {
           setShowStockModal(true);
           return;
         }
         closeModal();
-        const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
+        const { data } = await axios.get('https://inv-man.onrender.com/api/v1/transactions/display');
         setTransactions(data.data);
       } catch (error) {
         console.error("Failed to add product", error);
@@ -72,8 +72,8 @@ const transaction = () => {
 
     const deleteHandler = async (user) => {
       try {
-        await axios.delete(`http://192.168.251.175:6213/api/v1/transactions/${user.transactions_id}`);
-        const { data } = await axios.get('http://192.168.251.175:6213/api/v1/transactions/display');
+        await axios.delete(`https://inv-man.onrender.com/api/v1/transactions/${user.transactions_id}`);
+        const { data } = await axios.get('https://inv-man.onrender.com/api/v1/transactions/display');
         setTransactions(data.data);
       } catch (error) {
         console.error("Failed to delete product", error);

@@ -12,7 +12,7 @@ const products = () => {
     useEffect(()=>{
         async function run() {
             try {
-                const {data} =  await axios.get('http://192.168.251.175:6213/api/v1/products');
+                const {data} =  await axios.get('https://inv-man.onrender.com/api/v1/Products');
                 setProducts(data.data);
             } catch (error) {
                 console.log(error);
@@ -41,8 +41,8 @@ const products = () => {
 
       setErrors({});
       closeModal();
-      await axios.post('http://192.168.251.175:6213/api/v1/products/', formData);
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/products/');
+      await axios.post('https://inv-man.onrender.com/api/v1/products/', formData);
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/products/');
       setProducts(data.data);
     } catch (error) {
       console.error("Failed to add products", error);
@@ -73,8 +73,8 @@ const products = () => {
 
       setErrors({});
       closeModal();
-      await axios.patch(`http://192.168.251.175:6213/api/v1/products/${formData.product_id}`,formData)
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/products');
+      await axios.patch(`https://inv-man.onrender.com/api/v1/products/${formData.product_id}`,formData)
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/products');
       setProducts(data.data);
     } catch (error) {
       console.error("Failed to editing Products", error);
@@ -83,8 +83,8 @@ const products = () => {
 
   const deleteHandler = async (user) => {
     try {
-      await axios.delete(`http://192.168.251.175:6213/api/v1/products/${user.product_id}`)
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/products');
+      await axios.delete(`https://inv-man.onrender.com/api/v1/products/${user.product_id}`)
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/products');
       setProducts(data.data);
     } catch (error) {
       console.error("Failed to delete product", error);

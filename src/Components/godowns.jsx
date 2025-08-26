@@ -12,7 +12,7 @@ const godowns = () => {
   useEffect(()=>{
       async function run() {
           try {
-              const {data} =  await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+              const {data} =  await axios.get('https://inv-man.onrender.com/api/v1/godowns');
               setGodown(data.data);
           } catch (error) {
               console.log(error);
@@ -36,8 +36,8 @@ const godowns = () => {
       setErrors({});
 
       closeModal();
-      await axios.post('http://192.168.251.175:6213/api/v1/godowns', formData);
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+      await axios.post('https://inv-man.onrender.com/api/v1/godowns', formData);
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/godowns');
       setGodown(data.data);
     } catch (error) {
       console.error("Failed to add godown", error);
@@ -58,8 +58,8 @@ const godowns = () => {
 
       setErrors({});
       closeModal();
-      await axios.patch(`http://192.168.251.175:6213/api/v1/godowns/${formData.godown_id}`,formData)
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+      await axios.patch(`https://inv-man.onrender.com/api/v1/godowns/${formData.godown_id}`,formData)
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/godowns');
       setGodown(data.data);
     } catch (error) {
       console.error("Failed to editing godown", error);
@@ -68,8 +68,8 @@ const godowns = () => {
 
   const deleteHandler = async (user) => {
     try {
-      await axios.delete(`http://192.168.251.175:6213/api/v1/godowns/${user.godown_id}`)
-      const { data } = await axios.get('http://192.168.251.175:6213/api/v1/godowns');
+      await axios.delete(`https://inv-man.onrender.com/api/v1/godowns/${user.godown_id}`)
+      const { data } = await axios.get('https://inv-man.onrender.com/api/v1/godowns');
       setGodown(data.data);
     } catch (error) {
       console.error("Failed to delete godown", error);
