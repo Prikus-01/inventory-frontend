@@ -107,6 +107,29 @@ const transaction = () => {
     );
   });
 
+  const downloadCSV = () => {
+    const headers = ['Id','Type','Transaction Date','Name','Packing','Quantity','Godown','Reference Number'];
+    const rows = filteredTransactions.map((r)=>[
+      r.transactions_id,
+      r.transaction_type ?? '',
+      r.transactions_date ? new Date(r.transactions_date).toISOString().slice(0,19).replace('T',' ') : '',
+      r.product_name ?? '',
+      r.packing ?? '',
+      r.quantity ?? '',
+      r.godown_name ?? '',
+      r.reference_number ?? ''
+    ]);
+    const escape = (val) => '"' + String(val).replace(/"/g,'""') + '"';
+    const csv = [headers.map(escape).join(','), ...rows.map((row)=>row.map(escape).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transactions.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="bg-white">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -125,6 +148,7 @@ const transaction = () => {
               placeholder="Search transactions..."
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
+            <button onClick={downloadCSV} className="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Download CSV</button>
             <button
             onClick={addButton}
             className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">

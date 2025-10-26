@@ -32,6 +32,27 @@ const home = () => {
       );
     });
 
+    const downloadCSV = () => {
+      const headers = ['Name','Packing','Quantity','Cases','Godown','UpdatedAt'];
+      const rows = filteredInventory.map((r)=>[
+        r.product_name ?? '',
+        r.packing ?? '',
+        r.quantity ?? '',
+        r.cases ?? '',
+        r.godown_name ?? '',
+        r.updated_at ? new Date(r.updated_at).toISOString().slice(0,19).replace('T',' ') : ''
+      ]);
+      const escape = (val) => '"' + String(val).replace(/"/g,'""') + '"';
+      const csv = [headers.map(escape).join(','), ...rows.map((row)=>row.map(escape).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'inventory.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     return (
     <div className="bg-white px-5">
       <div className="py-4 border-b border-gray-200">
@@ -42,7 +63,7 @@ const home = () => {
               A list of all the products in your account including their name, packing, quantity and etc.
             </p>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-3">
             <input
               type="text"
               value={searchTerm}
@@ -50,6 +71,7 @@ const home = () => {
               placeholder="Search inventory..."
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
+            <button onClick={downloadCSV} className="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Download CSV</button>
           </div>
         </div>
       </div>
