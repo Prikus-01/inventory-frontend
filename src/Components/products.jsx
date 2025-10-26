@@ -8,6 +8,7 @@ const products = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(()=>{
         async function run() {
@@ -104,6 +105,17 @@ const products = () => {
     setFormData({});
   }
 
+  const filteredProducts = products.filter((p) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      String(p.product_id).toLowerCase().includes(q) ||
+      (p.product_name || '').toLowerCase().includes(q) ||
+      (p.packing || '').toLowerCase().includes(q) ||
+      String(p.units_in_case ?? '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="bg-white">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -114,12 +126,21 @@ const products = () => {
               list of all the Products and details.
             </p>
           </div>
-          <button onClick={() => {
-            setFormData({ product_name: '', packing : '', units_in_case: '' });
-            setShowAddModal(true);
-          }} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-            Add Product
-          </button>
+          <div className="flex items-center space-x-3">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search products..."
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button onClick={() => {
+              setFormData({ product_name: '', packing : '', units_in_case: '' });
+              setShowAddModal(true);
+            }} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+              Add Product
+            </button>
+          </div>
         </div>
       </div>
       
@@ -145,7 +166,7 @@ const products = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((user) => (
+            {filteredProducts.map((user) => (
               <tr key={user.product_id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-500">{user.product_id}</div>

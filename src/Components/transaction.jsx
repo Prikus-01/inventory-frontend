@@ -10,6 +10,7 @@ const transaction = () => {
     const [products, setProducts] = useState([]);
     const [godowns, setGodowns] = useState([]);
     const [errors, setErrors] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(()=>{
         async function run() {
@@ -91,6 +92,21 @@ const transaction = () => {
     });
   }
 
+  const filteredTransactions = transactions.filter((t) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      String(t.transactions_id).toLowerCase().includes(q) ||
+      (t.transaction_type || '').toLowerCase().includes(q) ||
+      (t.product_name || '').toLowerCase().includes(q) ||
+      (t.packing || '').toLowerCase().includes(q) ||
+      String(t.quantity ?? '').toLowerCase().includes(q) ||
+      (t.godown_name || '').toLowerCase().includes(q) ||
+      String(t.reference_number ?? '').toLowerCase().includes(q) ||
+      (t.transactions_date ? new Date(t.transactions_date).toISOString().slice(0, 19).replace('T',' ').toLowerCase().includes(q) : false)
+    );
+  });
+
   return (
     <div className="bg-white">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -101,11 +117,20 @@ const transaction = () => {
               list of all the Transactions and details.
             </p>
           </div>
-          <button
-          onClick={addButton}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-            Add Transactions
-          </button>
+          <div className="flex items-center space-x-3">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search transactions..."
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button
+            onClick={addButton}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+              Add Transactions
+            </button>
+          </div>
         </div>
       </div>
       
@@ -143,7 +168,7 @@ const transaction = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {transactions.map((user) => (
+            {filteredTransactions.map((user) => (
               <tr key={user.transactions_id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-500">{user.transactions_id}</div>
@@ -264,7 +289,7 @@ const transaction = () => {
                     onClick={addHandler}
                     className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    Add Product
+                    Add Transactions
                   </button>
                 </div>
               </div>

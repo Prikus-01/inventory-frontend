@@ -8,6 +8,7 @@ const godowns = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(()=>{
       async function run() {
@@ -88,7 +89,16 @@ const godowns = () => {
     setShowEditModal(false);
     setFormData({});
   }
-    
+
+  const filteredGodowns = godown.filter((g) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      String(g.godown_id).toLowerCase().includes(q) ||
+      (g.godown_name || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="bg-white">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -99,12 +109,21 @@ const godowns = () => {
               A list of all the Godowns.
             </p>
           </div>
-          <button onClick={() => {
-            setFormData({ godown_name: '' });
-            setShowAddModal(true);
-          }} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-            Add Godown
-          </button>
+          <div className="flex items-center space-x-3">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search godowns..."
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button onClick={() => {
+              setFormData({ godown_name: '' });
+              setShowAddModal(true);
+            }} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+              Add Godown
+            </button>
+          </div>
         </div>
       </div>
       
@@ -124,7 +143,7 @@ const godowns = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {godown.map((user) => (
+            {filteredGodowns.map((user) => (
               <tr key={user.godown_id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-500">{user.godown_id}</div>
